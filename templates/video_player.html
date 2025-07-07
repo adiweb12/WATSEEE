@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho - Video Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E;
+            --header-bg: #1A122E;
+            --text-color-light: #E0E0E0;
+            --text-color-lighter: #AAAAAA;
+            --watcho-red: #D62828;
+            --accent-color: #8A4EF0;
+            --nav-item-active: #F5F5F5;
+            --nav-item-inactive: #A0A0A0;
+            --card-bg: #2C1F4D;
+            --dropdown-bg: #2C1F4D;
+            --dropdown-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px;
+            min-height: 100vh; /* Ensures container fills viewport height */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden; /* Hide scrollbars within the container, use on inner content if needed */
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-right: 20px;
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        .profile-dropdown-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .user-initials {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-dropdown-container.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--dropdown-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            width: 250px;
+            padding: 15px 0;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .profile-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-profile-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: var(--dropdown-border);
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+        }
+
+        .dropdown-profile-info .user-initials {
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            margin-right: 15px;
+            background-color: var(--watcho-red);
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-text .name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 2px;
+        }
+
+        .profile-text .email {
+            font-size: 12px;
+            color: var(--text-color-lighter);
+        }
+
+        .dropdown-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color-light);
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .dropdown-menu-item .icon {
+            font-size: 18px;
+            margin-right: 15px;
+            color: var(--text-color-lighter);
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu-item.sign-out {
+            border-top: var(--dropdown-border);
+            margin-top: 10px;
+            color: var(--watcho-red);
+            font-weight: 500;
+        }
+
+        .dropdown-menu-item.sign-out .icon {
+            color: var(--watcho-red);
+        }
+
+        .app-content {
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling for content area only */
+            padding-bottom: 80px; /* Space for the fixed footer */
+            scrollbar-width: none; /* For Firefox */
+            -ms-overflow-style: none; /* For IE and Edge */
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+
+        /* --- Video Player Specific Styles --- */
+        .video-player-container {
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio (height / width * 100%) */
+            position: relative;
+            background-color: black; /* Black background for video area */
+            display: flex; /* Use flexbox for centering content/message */
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* NEW: Container for the actual video/iframe element */
+        .video-player-display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex; /* Ensures content inside also centers */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-player-display video,
+        .video-player-display iframe {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Ensure video fits within aspect ratio without cropping */
+            border: none; /* Remove iframe border */
+        }
+
+        .video-player-container .message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 1px solid var(--watcho-red);
+            border-radius: 5px;
+            color: var(--watcho-red);
+            font-size: 14px;
+            text-align: center;
+        }
+
+
+        .video-info-section {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .video-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .video-meta {
+            font-size: 13px;
+            color: var(--text-color-lighter);
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on small screens */
+            gap: 5px 10px; /* Vertical and horizontal gap */
+            align-items: center;
+        }
+
+        .video-description {
+            font-size: 14px;
+            color: var(--text-color-light);
+            line-height: 1.5;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Preserve line breaks in description */
+        }
+
+        .actions-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .action-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color-lighter);
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .action-item:hover {
+            color: var(--text-color-light);
+        }
+
+        .action-item.liked,
+        .action-item.added { /* Add 'added' class for the Add button */
+            color: var(--accent-color); /* Highlight color for liked/added items */
+        }
+
+        .related-videos-section {
+            padding: 0 20px 20px; /* Adjust padding for content */
+        }
+
+        .related-videos-section h2 {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--text-color-light);
+        }
+
+        .related-video-list {
+            display: flex;
+            flex-direction: column; /* Stack related videos vertically */
+            gap: 15px; /* Space between video items */
+        }
+
+        .related-video-item {
+            display: flex;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .related-video-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .related-video-item .thumbnail-container {
+            flex-shrink: 0; /* Prevent thumbnail from shrinking */
+            width: 120px; /* Fixed width for thumbnail */
+            height: 70px; /* Fixed height for thumbnail */
+            position: relative;
+        }
+
+        .related-video-item .thumbnail-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .related-video-item .video-details {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1; /* Allow details to take remaining space */
+        }
+
+        .related-video-item .video-details .title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* Limit title to 2 lines */
+            -webkit-box-orient: vertical;
+        }
+
+        .related-video-item .video-details .meta {
+            font-size: 11px;
+            color: var(--text-color-lighter);
+        }
+
+        /* --- Global App Nav Bar (Fixed) --- */
+        .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed; /* Set to fixed */
+            bottom: 0;
+            width: 100%;
+            max-width: 380px; /* Important for fixed elements inside max-width container */
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+             <div class="logo">WA<span style="color: var(--watcho-red);">T</span>SE<span style="color: var(--watcho-red);">E</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" id="headerSearchIcon"></i>
+                <div class="profile-dropdown-container" id="profileDropdownToggle">
+                    <div class="user-initials">W9</div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                    <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                        <div class="dropdown-profile-info">
+                            <div class="user-initials">W9</div>
+                            <div class="profile-text">
+                                <span class="name" id="profileName"></span>
+                                <span class="email" id="profileEmail"></span>
+                            </div>
+                        </div>
+                        <div class="dropdown-menu-item" onclick="window.location.href='profile.html'">
+                            <i class="fas fa-user icon"></i>
+                            <span>My Profile</span>
+                        </div>
+                        <div class="dropdown-menu-item">
+                            <i class="fas fa-cog icon"></i>
+                            <span>Settings</span>
+                        </div>
+                        <div class="dropdown-menu-item">
+                            <i class="fas fa-question-circle icon"></i>
+                            <span>Help & Support</span>
+                        </div>
+                        <div class="dropdown-menu-item" onclick="window.location.href='developer_dashboard.html'">
+                            <i class="fas fa-code icon"></i>
+                            <span>Developer Dashboard</span>
+                        </div>
+                        <div class="dropdown-menu-item sign-out" onclick="window.location.href='/api/logout'">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span>Sign Out</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <div class="video-player-container">
+                <div id="videoPlayerDisplay" class="video-player-display">
+                    <p class="message">Loading video...</p>
+                </div>
+            </div>
+
+            <section class="video-info-section">
+                <h1 class="video-title" id="videoTitle">Loading Video...</h1>
+                <div class="video-meta">
+                    <span id="videoMetaChannel"></span>
+                    <span id="videoMetaViewsDate"></span>
+                </div>
+                <div class="actions-bar">
+                    <div class="action-item" id="likeButton">
+                        <i class="fas fa-thumbs-up icon"></i>
+                        <span>Like</span>
+                    </div>
+                    <div class="action-item" id="dislikeButton">
+                        <i class="fas fa-thumbs-down icon"></i>
+                        <span>Dislike</span>
+                    </div>
+                    <div class="action-item" id="shareButton">
+                        <i class="fas fa-share-alt icon"></i>
+                        <span>Share</span>
+                    </div>
+                    <div class="action-item" id="addButton">
+                        <i class="fas fa-plus icon"></i>
+                        <span>Add</span>
+                    </div>
+                </div>
+                <p class="video-description" id="videoDescription">
+                    Loading description...
+                </p>
+            </section>
+
+            <section class="related-videos-section">
+                <h2>More Like This</h2>
+                <div class="related-video-list" id="relatedVideoList">
+                    <div class="related-video-item" data-video-id="placeholder_vid_001">
+                        <div class="thumbnail-container">
+                            <img src="https://via.placeholder.com/120x70?text=Related+Video+1" alt="Related Video Thumbnail">
+                        </div>
+                        <div class="video-details">
+                            <div class="title">Placeholder Video 1</div>
+                            <div class="meta">Channel Name • 1.2M Views • 3 months ago</div>
+                        </div>
+                    </div>
+                    <div class="related-video-item" data-video-id="placeholder_vid_002">
+                        <div class="thumbnail-container">
+                            <img src="https://via.placeholder.com/120x70?text=Related+Video+2" alt="Related Video Thumbnail">
+                        </div>
+                        <div class="video-details">
+                            <div class="title">Placeholder Video 2: Adventure Awaits</div>
+                            <div class="meta">Travel Explorer • 800K Views • 1 week ago</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-nav-bar">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='search.html'">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='favorites.html'">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='favorites.html'"> <i class="fas fa-book icon"></i>
+                <span>Library & Favorites</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileDropdownToggle = document.getElementById('profileDropdownToggle');
+            const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+            const profileNameSpan = document.getElementById('profileName');
+            const profileEmailSpan = document.getElementById('profileEmail');
+            const headerSearchIcon = document.getElementById('headerSearchIcon');
+
+            // Video Player Elements
+            const videoPlayerDisplay = document.getElementById('videoPlayerDisplay'); // NEW: Container for player
+            const videoTitleElem = document.getElementById('videoTitle'); // Renamed for clarity
+            const videoMetaViewsDateElem = document.getElementById('videoMetaViewsDate'); // Renamed for clarity
+            const videoMetaChannelElem = document.getElementById('videoMetaChannel'); // Renamed for clarity
+            // Renamed for clarity - This line seems like a copy-paste error, removed it for clean code
+            const videoDescriptionElem = document.getElementById('videoDescription'); // Renamed for clarity
+            const relatedVideoList = document.getElementById('relatedVideoList');
+
+            // Action buttons (Optional: for future functionality)
+            const likeButton = document.getElementById('likeButton');
+            const dislikeButton = document.getElementById('dislikeButton');
+            const shareButton = document.getElementById('shareButton');
+            const addButton = document.getElementById('addButton');
+
+
+            // --- Search Icon Redirection ---
+            if (headerSearchIcon) {
+                headerSearchIcon.addEventListener('click', function() {
+                    window.location.href = 'search.html';
+                });
+            }
+
+            // --- Profile Dropdown Logic ---
+            async function fetchProfileDropdownData() {
+                try {
+                    const response = await fetch('/api/user_data');
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        const user = data.user;
+                        profileNameSpan.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                        profileEmailSpan.textContent = user.email || '';
+                    } else {
+                        profileNameSpan.textContent = 'Guest User';
+                        profileEmailSpan.textContent = 'Please log in';
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile dropdown data:', error);
+                    profileNameSpan.textContent = 'Guest User';
+                    profileEmailSpan.textContent = 'Please log in';
+                }
+            }
+            fetchProfileDropdownData();
+
+            function toggleDropdown() {
+                profileDropdownMenu.classList.toggle('show');
+                profileDropdownToggle.classList.toggle('active');
+            }
+
+            profileDropdownToggle.addEventListener('click', function(event) {
+                event.stopPropagation();
+                toggleDropdown();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!profileDropdownMenu.contains(event.target) && !profileDropdownToggle.contains(event.target)) {
+                    if (profileDropdownMenu.classList.contains('show')) {
+                        toggleDropdown();
+                    }
+                }
+            });
+
+            // --- Video Player Dynamic Loading Logic ---
+
+            // Helper function to extract YouTube ID and construct embed URL
+            function getYouTubeEmbedUrl(url) {
+                let videoId = '';
+                // Regex to extract video ID from various YouTube URL formats
+                // Handles watch?v=, embed/, v/, and youtu.be shortlinks
+                const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?/g;
+                const match = youtubeRegex.exec(url);
+                if (match && match[1]) {
+                    videoId = match[1];
+                }
+                // autoplay=1 for automatic playback, rel=0 to only show related videos from the same channel
+                return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : null;
+            }
+
+            async function loadVideo(videoId) {
+                // Clear previous content and show loading message
+                videoPlayerDisplay.innerHTML = '<p class="message">Loading video...</p>';
+                videoTitleElem.textContent = "Loading Video...";
+                videoMetaViewsDateElem.textContent = "";
+                videoMetaChannelElem.textContent = "";
+                videoDescriptionElem.textContent = "Loading description...";
+                document.title = "Watcho - Video Player"; // Reset page title
+
+                if (!videoId) {
+                    videoPlayerDisplay.innerHTML = '<p class="message">Error: No video ID provided. Video Not Found. Please provide a valid video ID in the URL (e.g., video_player.html?id=vid001).</p>';
+                    videoTitleElem.textContent = "Video Not Found";
+                    videoDescriptionElem.textContent = "Please provide a valid video ID in the URL (e.g., video_player.html?id=vid001).";
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/video_data/${videoId}`);
+                    const data = await response.json();
+
+                    if (response.ok && data.success && data.video) {
+                        const video = data.video;
+                        videoPlayerDisplay.innerHTML = ''; // Clear loading message
+
+                        const youtubeEmbedUrl = getYouTubeEmbedUrl(video.url);
+
+                        if (youtubeEmbedUrl) {
+                            // It's a YouTube video
+                            const iframe = document.createElement('iframe');
+                            iframe.setAttribute('src', youtubeEmbedUrl);
+                            iframe.setAttribute('frameborder', '0');
+                            // Allow essential features for YouTube embeds
+                            iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                            iframe.setAttribute('allowfullscreen', '');
+                            videoPlayerDisplay.appendChild(iframe);
+                        } else {
+                            // Assume it's a direct video URL (e.g., .mp4)
+                            const videoElement = document.createElement('video');
+                            videoElement.setAttribute('src', video.url);
+                            videoElement.setAttribute('controls', ''); // Show video controls
+                            videoElement.setAttribute('autoplay', ''); // Autoplay the video
+                            videoElement.setAttribute('preload', 'auto'); // Preload video for faster start
+                            videoPlayerDisplay.appendChild(videoElement);
+                            
+                            // Add an error listener for direct video files
+                            videoElement.onerror = () => {
+                                videoPlayerDisplay.innerHTML = '<p class="message">Error loading video. The video URL might be invalid or unsupported.</p>';
+                            };
+                        }
+
+                        // Populate video info sections
+                        videoTitleElem.textContent = video.title;
+                        videoMetaViewsDateElem.textContent = `${video.views} Views • ${video.upload_date}`;
+                        videoMetaChannelElem.textContent = video.channel;
+                        videoDescriptionElem.textContent = video.description;
+                        document.title = `Watcho - ${video.title}`; // Update page title
+
+                    } else {
+                        videoPlayerDisplay.innerHTML = `<p class="message">${data.message || "Video not found or an error occurred."}</p>`;
+                        videoTitleElem.textContent = "Video Not Found";
+                        videoDescriptionElem.textContent = "The video you are looking for might not exist or is currently unavailable.";
+                        videoMetaViewsDateElem.textContent = "";
+                        videoMetaChannelElem.textContent = "";
+                    }
+                } catch (error) {
+                    console.error('Error fetching video data:', error);
+                    videoPlayerDisplay.innerHTML = '<p class="message">Failed to connect to the server. Please check your connection.</p>';
+                    videoTitleElem.textContent = "Error Loading Video";
+                    videoDescriptionElem.textContent = "There was an issue loading this video. Please try again later.";
+                    videoMetaViewsDateElem.textContent = "";
+                    videoMetaChannelElem.textContent = "";
+                }
+                // Always scroll to top after loading new video
+                window.scrollTo(0, 0);
+            }
+
+            // Get video ID from URL when the page loads
+            const urlParams = new URLSearchParams(window.location.search);
+            // This line is correct and should remain 'id'
+            const videoIdFromUrl = urlParams.get('id'); 
+            loadVideo(videoIdFromUrl); 
+
+            // Handle clicks on related video items to load new video
+            // This assumes related videos are populated or are static with data-video-id
+            relatedVideoList.querySelectorAll('.related-video-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const newVideoId = this.dataset.videoId;
+                    if (newVideoId) {
+                        // Change URL without full page reload
+                        history.pushState(null, '', `video_player.html?id=${newVideoId}`); // Corrected here for consistency
+                        loadVideo(newVideoId); // Load the new video content
+                    }
+                });
+            });
+
+            // Optional: Add simple click handlers for action buttons (no backend logic yet)
+            likeButton.addEventListener('click', () => {
+                likeButton.classList.toggle('liked');
+            });
+            addButton.addEventListener('click', () => {
+                addButton.classList.toggle('added');
+            });
+            // You can add similar toggles for dislike, share etc.
+        });
+    </script>
+</body>
+</html>

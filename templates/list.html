@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho App - Favorites</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E; /* Main background color */
+            --header-bg: #1A122E; /* Header background color */
+            --text-color-light: #E0E0E0; /* Light gray for most text */
+            --text-color-lighter: #AAAAAA; /* For secondary text */
+            --watcho-red: #D62828; /* WATCHO logo 'O' color */
+            --accent-color: #8A4EF0; /* Accent for W9 circle */
+            --nav-item-active: #F5F5F5; /* Active navigation item color */
+            --nav-item-inactive: #A0A0A0; /* Inactive navigation item color */
+            --tab-active-bg: var(--watcho-red); /* Background for active tab */
+            --tab-inactive-text: var(--text-color-lighter); /* Text for inactive tabs */
+            --tab-inactive-border: 1px solid rgba(255, 255, 255, 0.2); /* Border for inactive tabs */
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow: hidden; /* Control body scrolling */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px; /* Typical mobile width */
+            height: 100vh; /* Full viewport height */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden; /* Hide scrollbars within the container */
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-left: 20px; /* Space between icons */
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        .user-initials {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .app-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto; /* Enable scrolling for content */
+            padding-bottom: 80px; /* Space for the fixed footer */
+            scrollbar-width: none; /* For Firefox */
+            -ms-overflow-style: none; /* For IE and Edge */
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+
+        .library-section h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--text-color-light);
+        }
+
+        .library-section p {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            margin-bottom: 25px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.2); /* Slight background for the tab container */
+            border-radius: 8px;
+            padding: 5px; /* Padding around the tabs */
+            margin-bottom: 40px; /* Space below tabs */
+        }
+
+        .tab-item {
+            flex: 1; /* Distribute space evenly */
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--tab-inactive-text);
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: flex; /* For icon and text alignment */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab-item .icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .tab-item.active {
+            background-color: var(--tab-active-bg);
+            color: white; /* Active tab text color */
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            min-height: 250px; /* Give it some height */
+        }
+
+        .empty-state .icon {
+            font-size: 60px;
+            color: var(--text-color-lighter);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            line-height: 1.5;
+        }
+
+        /* Circles from the background image */
+        .bg-circle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.05); /* Semi-transparent white */
+            border-radius: 50%;
+            z-index: 1; /* Behind content */
+            pointer-events: none; /* Do not block clicks */
+        }
+
+        .bg-circle-large {
+            width: 250px;
+            height: 250px;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.1; /* More subtle */
+        }
+
+        .bg-circle-medium-top {
+            width: 150px;
+            height: 150px;
+            top: 10%;
+            right: -50px;
+            opacity: 0.1;
+        }
+
+        .bg-circle-medium-bottom {
+            width: 180px;
+            height: 180px;
+            bottom: 50px;
+            left: -80px;
+            opacity: 0.08;
+        }
+
+        .bg-circle-small {
+            width: 80px;
+            height: 80px;
+            top: 50%;
+            left: 20%;
+            opacity: 0.12;
+        }
+
+         .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed;
+            /* <--- CHANGE THIS FROM 'absolute' TO 'fixed' */
+            bottom: 0;
+            width: 100%;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="bg-circle bg-circle-large"></div>
+        <div class="bg-circle bg-circle-medium-top"></div>
+        <div class="bg-circle bg-circle-medium-bottom"></div>
+        <div class="bg-circle bg-circle-small"></div>
+
+        <header class="app-header">
+            <div class="logo">WA<span style="color: var(--watcho-red);">T</span>SE<span style="color: var(--watcho-red);">E</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" onclick="window.location.href='search.html'"></i>
+                <div class="user-initials">W9</div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <section class="library-section">
+                <h1>My Library</h1>
+                <p>Your personal collection of saved and watched content</p>
+
+                <div class="tab-navigation">
+                    <div class="tab-item active" onclick="window.location.href='list.html'">
+                        <i class="fas fa-bookmark icon"></i>
+                        <span>My List</span>
+                    </div>
+                    <div class="tab-item" onclick="window.location.href='favorites.html'">
+                        <i class="fas fa-heart icon"></i>
+                        <span>Favorites</span>
+                    </div>
+                    <div class="tab-item" onclick="window.location.href='continue.html'">
+                        <i class="fas fa-history icon"></i>
+                        <span>Continue Watching</span>
+                    </div>
+                </div>
+
+                <div class="empty-state">
+                    <i class="fas fa-bookmark icon"></i> <h3>Your list is empty</h3>
+                    <p>Add videos to your list to watch them later</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-nav-bar">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='search.html'">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </div>
+            <div class="nav-item active" onclick="window.location.href='favorites.html'">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='favorites.html'">
+                <i class="fas fa-book icon"></i>
+                <span>Library</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

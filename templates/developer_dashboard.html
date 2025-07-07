@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho - Developer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E;
+            --header-bg: #1A122E;
+            --text-color-light: #E0E0E0;
+            --text-color-lighter: #AAAAAA;
+            --watcho-red: #D62828;
+            --accent-color: #8A4EF0;
+            --nav-item-active: #F5F5F5;
+            --nav-item-inactive: #A0A0A0;
+            --card-bg: #2C1F4D;
+            --dropdown-bg: #2C1F4D;
+            --dropdown-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-right: 20px;
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        .profile-dropdown-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .user-initials {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-dropdown-container.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--dropdown-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            width: 250px;
+            padding: 15px 0;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .profile-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-profile-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: var(--dropdown-border);
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+        }
+
+        .dropdown-profile-info .user-initials {
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            margin-right: 15px;
+            background-color: var(--watcho-red);
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-text .name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 2px;
+        }
+
+        .profile-text .email {
+            font-size: 12px;
+            color: var(--text-color-lighter);
+        }
+
+        .dropdown-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color-light);
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none; /* Added */
+        }
+
+        .dropdown-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .dropdown-menu-item .icon {
+            font-size: 18px;
+            margin-right: 15px;
+            color: var(--text-color-lighter);
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu-item.sign-out {
+            border-top: var(--dropdown-border);
+            margin-top: 10px;
+            color: var(--watcho-red);
+            font-weight: 500;
+        }
+
+        .dropdown-menu-item.sign-out .icon {
+            color: var(--watcho-red);
+        }
+
+        .app-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 80px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* --- Developer Dashboard Specific Styles --- */
+        .dashboard-section {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-section h2 {
+            font-size: 20px;
+            color: var(--text-color-light);
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+
+        .dashboard-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .dashboard-section label {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .dashboard-section input[type="text"],
+        .dashboard-section textarea,
+        .dashboard-section input[type="url"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-color-light);
+            font-size: 14px;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        /* Adjustments for checkbox to align with other inputs */
+        .dashboard-section input[type="checkbox"] {
+            width: auto; /* Override 100% width for checkboxes */
+            margin-right: 10px; /* Space between checkbox and label */
+            vertical-align: middle; /* Align checkbox with text */
+        }
+
+        .dashboard-section input[type="text"]::placeholder,
+        .dashboard-section textarea::placeholder,
+        .dashboard-section input[type="url"]::placeholder {
+            color: var(--text-color-lighter);
+            opacity: 0.7;
+        }
+
+        .dashboard-section input[type="text"]:focus,
+        .dashboard-section textarea:focus,
+        .dashboard-section input[type="url"]:focus,
+        .dashboard-section input[type="checkbox"]:focus { /* Added checkbox focus */
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(138, 78, 240, 0.5);
+        }
+
+        .dashboard-section textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .dashboard-section button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .dashboard-section button:hover {
+            background-color: #7a3ed1; /* Darker shade of accent color */
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .message.success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .message.error {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .video-list-container {
+            max-height: 300px; /* Limit height for scrollable list */
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+        }
+
+        .video-list-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .video-list-container li {
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            font-size: 13px;
+            color: var(--text-color-lighter);
+            display: flex; /* For better alignment of ID and title */
+            justify-content: space-between; /* Space out ID and title */
+            align-items: center;
+        }
+        .video-list-container li span { /* Style for the video ID/title */
+            flex: 1; /* Allow text to take space */
+            white-space: nowrap; /* Prevent wrapping for title if it gets too long */
+            overflow: hidden; /* Hide overflow */
+            text-overflow: ellipsis; /* Add ellipsis */
+        }
+
+
+        .video-list-container li:last-child {
+            border-bottom: none;
+        }
+
+        /* Nav Bar Fixed Position (same as other pages) */
+        .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 380px;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            text-decoration: none; /* Added */
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">WATCH<span style="color: var(--watcho-red);">O</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" id="headerSearchIcon"></i>
+                <div class="profile-dropdown-container" id="profileDropdownToggle">
+                    <div class="user-initials">W9</div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                    <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                        <div class="dropdown-profile-info">
+                            <div class="user-initials">W9</div>
+                            <div class="profile-text">
+                                <span class="name" id="profileNameDropdown"></span>
+                                <span class="email" id="profileEmailDropdown"></span>
+                            </div>
+                        </div>
+                        <a href="/profile.html" class="dropdown-menu-item">
+                            <i class="fas fa-user icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-cog icon"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-question-circle icon"></i>
+                            <span>Help & Support</span>
+                        </a>
+                        <a href="/developer_dashboard.html" class="dropdown-menu-item active">
+                            <i class="fas fa-code icon"></i>
+                            <span>Developer Dashboard</span>
+                        </a>
+                        <a href="/api/logout" class="dropdown-menu-item sign-out">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <div class="dashboard-section">
+                <h2>Add New Video</h2>
+                <form id="addVideoForm">
+                    <label for="addTitle">Title:</label>
+                    <input type="text" id="addTitle" placeholder="Video Title" required>
+
+                    <label for="addDescription">Description:</label>
+                    <textarea id="addDescription" placeholder="Video Description" required></textarea>
+
+                    <label for="addUrl">Video URL:</label>
+                    <input type="url" id="addUrl" placeholder="https://example.com/video.mp4" required>
+
+                    <label for="addThumbnail">Thumbnail URL:</label>
+                    <input type="url" id="addThumbnail" placeholder="https://example.com/thumbnail.jpg" required>
+
+                    <label for="addViews">Views (e.g., 1.5M):</label>
+                    <input type="text" id="addViews" placeholder="e.g., 1.5M" value="0 Views">
+
+                    <label for="addUploadDate">Upload Date (e.g., 2 days ago):</label>
+                    <input type="text" id="addUploadDate" placeholder="e.g., 2 days ago" value="Just now">
+
+                    <label for="addChannel">Channel Name:</label>
+                    <input type="text" id="addChannel" placeholder="e.g., Watcho Originals" value="Watcho">
+
+                    <label for="addDuration">Duration (HH:MM:SS):</label>
+                    <input type="text" id="addDuration" placeholder="e.g., 01:23:45" value="00:00:00">
+
+                    <div class="form-check" style="margin-bottom: 15px; display: flex; align-items: center;">
+                        <input type="checkbox" id="isFeatured">
+                        <label for="isFeatured" style="display: inline; margin-bottom: 0;">Mark as Featured</label>
+                    </div>
+
+                    <button type="submit">Add Video</button>
+                    <div id="addMessage" class="message" style="display: none;"></div>
+                </form>
+            </div>
+
+            <button id="clearVideosBtn" style="background-color: var(--watcho-red); margin-top: 20px; margin-bottom: 30px; width: 100%; padding: 12px 20px; border: none; border-radius: 5px; color: white; font-size: 16px; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease;">Clear All Videos</button>
+            <div id="clearMessage" class="message" style="display: none;"></div>
+
+            <div class="dashboard-section">
+                <h2>Remove Video</h2>
+                <form id="removeVideoForm">
+                    <label for="removeVideoId">Video ID:</label>
+                    <input type="text" id="removeVideoId" placeholder="e.g., vid001" required>
+
+                    <button type="submit" style="background-color: var(--watcho-red);">Remove Video</button>
+                    <div id="removeMessage" class="message" style="display: none;"></div>
+                </form>
+
+                <h3 style="font-size: 16px; margin-top: 25px; margin-bottom: 10px; color: var(--text-color-light);">Current Video IDs:</h3>
+                <div class="video-list-container">
+                    <ul id="currentVideoList">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-nav-bar">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </a>
+            <a href="favorites.html" class="nav-item">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </a>
+            <a href="favorites.html" class="nav-item">
+                <i class="fas fa-book icon"></i>
+                <span>Library & Favorites</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileDropdownToggle = document.getElementById('profileDropdownToggle');
+            const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+            // Ensure these IDs exist in your HTML
+            const profileNameSpan = document.getElementById('profileNameDropdown'); // Changed to match dropdown span
+            const profileEmailSpan = document.getElementById('profileEmailDropdown'); // Changed to match dropdown span
+            const headerSearchIcon = document.getElementById('headerSearchIcon');
+
+            // Form elements
+            const addVideoForm = document.getElementById('addVideoForm');
+            const addMessage = document.getElementById('addMessage');
+            const removeVideoForm = document.getElementById('removeVideoForm');
+            const removeMessage = document.getElementById('removeMessage');
+            const currentVideoList = document.getElementById('currentVideoList');
+
+            // NEW: Clear Videos elements
+            const clearVideosBtn = document.getElementById('clearVideosBtn');
+            const clearMessage = document.getElementById('clearMessage');
+
+
+            // --- Search Icon Redirection ---
+            if (headerSearchIcon) {
+                headerSearchIcon.addEventListener('click', function() {
+                    window.location.href = 'search.html';
+                });
+            }
+
+            // --- Profile Dropdown Logic ---
+            async function fetchProfileDropdownData() {
+                try {
+                    const response = await fetch('/api/user_data');
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        const user = data.user;
+                           // Update dropdown specific elements
+                        profileNameSpan.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                        profileEmailSpan.textContent = user.email || '';
+                    } else {
+                        profileNameSpan.textContent = 'Guest User';
+                        profileEmailSpan.textContent = 'Please log in';
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile dropdown data:', error);
+                    profileNameSpan.textContent = 'Guest User';
+                    profileEmailSpan.textContent = 'Please log in';
+                }
+            }
+            fetchProfileDropdownData();
+
+            function toggleDropdown() {
+                profileDropdownMenu.classList.toggle('show');
+                profileDropdownToggle.classList.toggle('active');
+            }
+
+            profileDropdownToggle.addEventListener('click', function(event) {
+                event.stopPropagation();
+                toggleDropdown();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!profileDropdownMenu.contains(event.target) && !profileDropdownToggle.contains(event.target)) {
+                    if (profileDropdownMenu.classList.contains('show')) {
+                        toggleDropdown();
+                    }
+                }
+            });
+
+            // --- Developer Dashboard Logic ---
+
+            function displayMessage(element, message, isSuccess) {
+                element.textContent = message;
+                element.className = 'message ' + (isSuccess ? 'success' : 'error');
+                element.style.display = 'block';
+                setTimeout(() => {
+                    element.style.display = 'none';
+                }, 5000); // Hide after 5 seconds
+            }
+
+            // Add Video Form Submission
+            addVideoForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const videoData = {
+                    title: document.getElementById('addTitle').value,
+                    description: document.getElementById('addDescription').value,
+                    url: document.getElementById('addUrl').value,
+                    thumbnail: document.getElementById('addThumbnail').value,
+                    views: document.getElementById('addViews').value,
+                    upload_date: document.getElementById('addUploadDate').value,
+                    channel: document.getElementById('addChannel').value,
+                    duration: document.getElementById('addDuration').value, // NEW: Get duration
+                    is_featured: document.getElementById('isFeatured').checked
+                };
+
+                try {
+                    const response = await fetch('/api/add_video', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(videoData)
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        displayMessage(addMessage, data.message, true);
+                        addVideoForm.reset(); // Clear form
+                        document.getElementById('addViews').value = "0 Views";
+                        document.getElementById('addUploadDate').value = "Just now";
+                        document.getElementById('addChannel').value = "Watcho";
+                        document.getElementById('addDuration').value = "00:00:00"; // NEW: Reset duration
+                        document.getElementById('isFeatured').checked = false;
+                        fetchVideoList(); // Refresh list of videos
+                    } else {
+                        displayMessage(addMessage, data.message, false);
+                        if (response.status === 403) {
+                            setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error adding video:', error);
+                    displayMessage(addMessage, 'An error occurred while adding video.', false);
+                }
+            });
+
+            // Remove Video Form Submission
+            removeVideoForm.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                const videoIdToRemove = document.getElementById('removeVideoId').value;
+
+                try {
+                    const response = await fetch('/api/remove_video', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ video_id: videoIdToRemove })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        displayMessage(removeMessage, data.message, true);
+                        document.getElementById('removeVideoId').value = '';
+                        fetchVideoList();
+                    } else {
+                        displayMessage(removeMessage, data.message, false);
+                        if (response.status === 403) {
+                            setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error removing video:', error);
+                    displayMessage(removeMessage, 'An error occurred while removing video.', false);
+                }
+            });
+
+            // NEW: Clear All Videos Button Logic
+            clearVideosBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to clear ALL videos? This action cannot be undone.')) {
+                    try {
+                        const response = await fetch('/api/clear_videos', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            displayMessage(clearMessage, data.message, true);
+                            fetchVideoList();
+                        } else {
+                            displayMessage(clearMessage, 'Error: ' + data.message, false);
+                            if (response.status === 403) {
+                                setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        displayMessage(clearMessage, 'An error occurred while clearing videos.', false);
+                    }
+                }
+            });
+
+            // Fetch and display current video list
+            async function fetchVideoList() {
+                try {
+                    const response = await fetch('/api/list_videos');
+                    const data = await response.json();
+                    if (data.success) {
+                        currentVideoList.innerHTML = '';
+                        if (data.videos && data.videos.length > 0) {
+                            data.videos.forEach(video => {
+                                const li = document.createElement('li');
+                                li.innerHTML = `
+                                    <span>${video.id}: ${video.title}</span>
+                                    ${video.is_featured ? '<i class="fas fa-star" style="color: gold; margin-left: 10px;" title="Featured"></i>' : ''}
+                                `;
+                                currentVideoList.appendChild(li);
+                            });
+                        } else {
+                            currentVideoList.innerHTML = '<li>No videos available.</li>';
+                        }
+                    } else {
+                        currentVideoList.innerHTML = `<li>Error loading videos: ${data.message}</li>`;
+                        if (response.status === 403) {
+                             setTimeout(() => { window.location.href = '/login.html'; }, 2000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error fetching video list:', error);
+                    currentVideoList.innerHTML = '<li>Failed to load video list.</li>';
+                }
+            }
+
+            // Initial load of video list when page loads
+            fetchVideoList();
+        });
+    </script>
+</body>
+</html>

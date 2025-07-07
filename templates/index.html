@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho App Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E;
+            --header-bg: #1A122E;
+            --text-color-light: #E0E0E0;
+            --text-color-lighter: #AAAAAA;
+            --watcho-red: #D62828;
+            --accent-color: #8A4EF0;
+            --nav-item-active: #F5F5F5;
+            --nav-item-inactive: #A0A0A0;
+            --card-bg: #2C1F4D;
+            --dropdown-bg: #2C1F4D;
+            --dropdown-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px; /* Typical mobile width */
+            min-height: 100vh; /* Ensures container fills viewport height */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Subtle shadow for app container */
+            position: relative; /* For fixed footer and absolutely positioned dropdown */
+            overflow: hidden; /* Prevent container-level scrollbars unless absolutely necessary */
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-right: 20px;
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        .profile-dropdown-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .user-initials {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            margin-right: 5px;
+            flex-shrink: 0; /* Prevents shrinking on smaller screens */
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-dropdown-container.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--dropdown-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            width: 250px;
+            padding: 15px 0;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .profile-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-profile-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: var(--dropdown-border);
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+        }
+
+        .dropdown-profile-info .user-initials {
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            margin-right: 15px;
+            background-color: var(--watcho-red);
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-text .name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 2px;
+        }
+
+        .profile-text .email {
+            font-size: 12px;
+            color: var(--text-color-lighter);
+        }
+
+        .dropdown-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color-light);
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none; /* Ensure links don't have underlines */
+        }
+
+        .dropdown-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .dropdown-menu-item .icon {
+            font-size: 18px;
+            margin-right: 15px;
+            color: var(--text-color-lighter);
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu-item.sign-out {
+            border-top: var(--dropdown-border);
+            margin-top: 10px;
+            color: var(--watcho-red);
+            font-weight: 500;
+        }
+
+        .dropdown-menu-item.sign-out .icon {
+            color: var(--watcho-red);
+        }
+
+        .app-content {
+            flex-grow: 1; /* Allows content to take available space */
+            padding: 20px;
+            overflow-y: auto; /* Enable scrolling for content */
+            padding-bottom: 80px; /* Space for the fixed footer */
+            scrollbar-width: none; /* For Firefox */
+            -ms-overflow-style: none; /* For IE and Edge */
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .content-section h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--text-color-light);
+        }
+
+        .content-section p {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            margin-bottom: 20px;
+        }
+
+        .trending-movies-list,
+        .popular-tv-shows-list,
+        .new-movies-list { /* Added .new-movies-list */
+            display: flex;
+            overflow-x: auto; /* Enable horizontal scroll */
+            gap: 15px; /* Space between cards */
+            padding-bottom: 10px; /* Space for scrollbar if it appears */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: var(--accent-color) rgba(255, 255, 255, 0.1); /* For Firefox */
+        }
+
+        /* Webkit scrollbar for Chrome, Safari */
+        .trending-movies-list::-webkit-scrollbar,
+        .popular-tv-shows-list::-webkit-scrollbar,
+        .new-movies-list::-webkit-scrollbar { /* Added .new-movies-list */
+            height: 6px;
+        }
+
+        .trending-movies-list::-webkit-scrollbar-track,
+        .popular-tv-shows-list::-webkit-scrollbar-track,
+        .new-movies-list::-webkit-scrollbar-track { /* Added .new-movies-list */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .trending-movies-list::-webkit-scrollbar-thumb,
+        .popular-tv-shows-list::-webkit-scrollbar-thumb,
+        .new-movies-list::-webkit-scrollbar-thumb { /* Added .new-movies-list */
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .series-card {
+            flex: 0 0 auto; /* Prevent cards from shrinking */
+            width: 160px; /* Fixed width for cards */
+            height: 90px; /* Fixed height for cards */
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer; /* Indicate it's clickable */
+            /* Add padding-bottom for the title/text if it's supposed to be outside the image */
+        }
+        .series-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* New style for the featured movie card, adapting your series-card design */
+        .featured-movie-card-container {
+            display: flex;
+            flex-direction: column; /* Stack image and text vertically */
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            width: 100%; /* Take full width of its parent */
+            max-width: 340px; /* As per your static example */
+            margin: 0 auto; /* Center it */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .featured-movie-card-container img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16/9; /* Maintain aspect ratio */
+            object-fit: cover;
+        }
+
+        .featured-movie-card-info {
+            padding: 10px 15px; /* Adjust padding for text content */
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .featured-movie-card-info h3 {
+            font-size: 18px; /* Larger title for featured */
+            font-weight: 700;
+            color: var(--text-color-light);
+            margin-bottom: 0;
+        }
+
+        .featured-movie-card-info p {
+            font-size: 13px;
+            color: var(--text-color-lighter);
+            margin-bottom: 0;
+            line-height: 1.4;
+        }
+
+        .featured-movie-card-info .btn-watch-now {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: background-color 0.2s ease;
+            align-self: flex-start; /* Align button to start */
+        }
+
+        .featured-movie-card-info .btn-watch-now:hover {
+            /* Using a fixed color for hover, as darken() is SASS/LESS, not pure CSS */
+            background-color: #6a3db0; /* A darker shade of --accent-color */
+        }
+
+        .series-card .series-badge {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background-color: var(--watcho-red);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            z-index: 5; /* Ensure badge is above image */
+        }
+
+        /* Nav Bar Fixed Position */
+        .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed; /* Set to fixed */
+            bottom: 0;
+            width: 100%;
+            max-width: 380px; /* Crucial for fixed element inside max-width container */
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            text-decoration: none; /* Important for links */
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+
+        /* Added for "No videos" / Loading messages */
+        .text-color-lighter {
+            color: var(--text-color-lighter);
+        }
+        .text-danger {
+            color: var(--watcho-red);
+        }
+        .text-center {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+             <div class="logo">WA<span style="color: var(--watcho-red);">T</span>SE<span style="color: var(--watcho-red);">E</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" id="headerSearchIcon"></i>
+                <div class="profile-dropdown-container" id="profileDropdownToggle">
+                    <div class="user-initials">W9</div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                    <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                        <div class="dropdown-profile-info">
+                            <div class="user-initials">W9</div>
+                            <div class="profile-text">
+                                <span class="name" id="profileNameDropdown"></span>
+                                <span class="email" id="profileEmailDropdown"></span>
+                            </div>
+                        </div>
+                        <a href="/profile.html" class="dropdown-menu-item">
+                            <i class="fas fa-user icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-cog icon"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-question-circle icon"></i>
+                            <span>Help & Support</span>
+                        </a>
+                        <a href="/developer_dashboard.html" class="dropdown-menu-item">
+                            <i class="fas fa-code icon"></i>
+                            <span>Developer Dashboard</span>
+                        </a>
+                        
+  
+    <a href="upload_video.html" class="dropdown-menu-item"> <i class="fas fa-code icon"></i></i>Upload Video</a>
+
+
+                        <a href="/api/logout" class="dropdown-menu-item sign-out">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <section class="content-section featured-videos">
+                <h2>Featured Videos</h2>
+                <p class="text-color-lighter">Check out our latest and greatest content!</p>
+                <div id="featuredMovieContainer">
+                    <p class="text-color-lighter">Loading featured movie...</p>
+                </div>
+            </section>
+
+            <section class="content-section trending-movies">
+                <h2>Trending Movies</h2>
+                <div class="trending-movies-list" id="trendingMoviesContainer">
+                    <p class="text-color-lighter">Loading trending movies...</p>
+                </div>
+            </section>
+
+            <section class="content-section new-movies">
+                <h2>New Movies (Recently Added)</h2>
+                <div class="new-movies-list" id="newMoviesContainer">
+                    <p class="text-color-lighter">Loading new movies...</p>
+                </div>
+            </section>
+
+            <section class="content-section popular-tv-shows">
+                <h2>Popular TV Shows</h2>
+                <div class="popular-tv-shows-list" id="popularTvShowsContainer">
+                    <p class="text-color-lighter">Loading popular TV shows...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-nav-bar">
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </a>
+            <a href="favorites.html" class="nav-item">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </a>
+            <a href="favorites.html" class="nav-item"> <i class="fas fa-book icon"></i>
+                <span>Library & Favorites</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileDropdownToggle = document.getElementById('profileDropdownToggle');
+            const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+            const profileNameSpan = document.getElementById('profileName');
+            const profileEmailSpan = document.getElementById('profileEmail');
+            // Ensure these IDs match the HTML for the dropdown info
+            const profileNameDropdown = document.getElementById('profileNameDropdown');
+            const profileEmailDropdown = document.getElementById('profileEmailDropdown');
+
+            const headerSearchIcon = document.getElementById('headerSearchIcon');
+
+            // --- Search Icon Redirection ---
+            if (headerSearchIcon) {
+                headerSearchIcon.addEventListener('click', function() {
+                    window.location.href = 'search.html';
+                });
+            }
+
+            // --- Profile Dropdown Logic ---
+            async function fetchProfileDropdownData() {
+                try {
+                    const response = await fetch('/api/user_data');
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        const user = data.user;
+                        profileNameSpan.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                        profileEmailSpan.textContent = user.email || '';
+                        // Update dropdown specific elements
+                        profileNameDropdown.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                        profileEmailDropdown.textContent = user.email || '';
+                    } else {
+                        profileNameSpan.textContent = 'Guest User';
+                        profileEmailSpan.textContent = 'Please log in';
+                        profileNameDropdown.textContent = 'Guest User';
+                        profileEmailDropdown.textContent = 'Please log in';
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile dropdown data:', error);
+                    profileNameSpan.textContent = 'Guest User';
+                    profileEmailSpan.textContent = 'Please log in';
+                    profileNameDropdown.textContent = 'Guest User';
+                    profileEmailDropdown.textContent = 'Please log in';
+                }
+            }
+            fetchProfileDropdownData();
+
+            function toggleDropdown() {
+                profileDropdownMenu.classList.toggle('show');
+                profileDropdownToggle.classList.toggle('active');
+            }
+
+            profileDropdownToggle.addEventListener('click', function(event) {
+                event.stopPropagation();
+                toggleDropdown();
+            });
+
+            document.addEventListener('click', function(event) {
+                if (!profileDropdownMenu.contains(event.target) && !profileDropdownToggle.contains(event.target)) {
+                    if (profileDropdownMenu.classList.contains('show')) {
+                        toggleDropdown();
+                    }
+                }
+            });
+
+            // --- Dynamic Video Loading Logic ---
+            const featuredMovieContainer = document.getElementById('featuredMovieContainer');
+            const trendingMoviesContainer = document.getElementById('trendingMoviesContainer');
+            const newMoviesContainer = document.getElementById('newMoviesContainer');
+            const popularTvShowsContainer = document.getElementById('popularTvShowsContainer');
+
+            // Function to create a standard series-card HTML element (for horizontal lists)
+            function createSeriesCard(video) {
+                const card = document.createElement('div');
+                card.classList.add('series-card');
+                card.dataset.videoId = video.id;
+                card.innerHTML = `
+                    <img src="${video.thumbnail}" alt="${video.title} Thumbnail">
+                    <span class="series-badge">${video.duration || '--:--'}</span>`;
+                
+                // **** FIX HERE: Change 'video_id' to 'id' ****
+                card.addEventListener('click', () => {
+                    window.location.href = `video_player.html?id=${video.id}`; // Changed video_id to id
+                });
+                return card;
+            }
+
+            // Function to create the larger featured movie card HTML element
+            function createFeaturedMovieCard(video) {
+                const cardContainer = document.createElement('div');
+                cardContainer.classList.add('featured-movie-card-container');
+                cardContainer.dataset.videoId = video.id;
+                cardContainer.innerHTML = `
+                    <img src="${video.thumbnail}" alt="${video.title} Thumbnail">
+                    <span class="series-badge">FEATURED</span> <div class="featured-movie-card-info">
+                        <h3>${video.title}</h3>
+                        <p>${video.channel} • ${video.views} views • ${video.upload_date}</p>
+                        <p>${video.description.substring(0, 100)}...</p>
+                        <a href="video_player.html?id=${video.id}" class="btn-watch-now">Watch Now</a> </div>
+                `;
+                cardContainer.addEventListener('click', (event) => {
+                    if (!event.target.classList.contains('btn-watch-now')) {
+                        // **** FIX HERE: Change 'video_id' to 'id' ****
+                        window.location.href = `video_player.html?id=${video.id}`; // Changed video_id to id
+                    }
+                });
+                return cardContainer;
+            }
+
+            // Function to load and display videos for a given container and API endpoint
+            async function loadVideos(container, endpoint, isFeaturedSection = false) {
+                try {
+                    const response = await fetch(endpoint);
+                    const data = await response.json();
+                    container.innerHTML = ''; // Clear loading message
+
+                    if (data.success) {
+                        if (isFeaturedSection) {
+                            const video = data.movie;
+                            if (video) {
+                                container.appendChild(createFeaturedMovieCard(video));
+                            } else {
+                                container.innerHTML = '<p class="text-color-lighter text-center">No featured movie available.</p>';
+                            }
+                        } else {
+                            const videos = data.movies;
+                            if (videos && videos.length > 0) {
+                                videos.forEach(video => {
+                                    container.appendChild(createSeriesCard(video));
+                                });
+                            } else {
+                                container.innerHTML = '<p class="text-color-lighter text-center">No videos available in this category.</p>';
+                            }
+                        }
+                    } else {
+                        container.innerHTML = `<p class="text-danger text-center">Error loading videos: ${data.message}</p>`;
+                        console.error(`API Error from ${endpoint}:`, data.message);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching videos from ${endpoint}:`, error);
+                    container.innerHTML = `<p class="text-danger text-center">Failed to load videos from ${endpoint}.</p>`;
+                }
+            }
+
+            // Initial load of videos for each section
+            loadVideos(featuredMovieContainer, '/api/movies/featured', true);
+            loadVideos(trendingMoviesContainer, '/api/movies/trending');
+            loadVideos(newMoviesContainer, '/api/movies/new');
+            loadVideos(popularTvShowsContainer, '/api/movies/popular');
+        });
+    </script>
+</body>
+</html>

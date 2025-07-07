@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho App - Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E; /* Main background color */
+            --header-bg: #1A122E; /* Header background color */
+            --text-color-light: #E0E0E0; /* Light gray for most text */
+            --text-color-lighter: #AAAAAA; /* For secondary text */
+            --watcho-red: #D62828; /* WATCHO logo 'O' color */
+            --accent-color: #8A4EF0; /* Accent for W9 circle in header */
+            --nav-item-active: #F5F5F5; /* Active navigation item color */
+            --nav-item-inactive: #A0A0A0; /* Inactive navigation item color */
+            --card-bg: #2C1F4D; /* Background for info cards */
+            --profile-initials-bg: var(--watcho-red); /* Background for large profile W9 */
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow: hidden; /* Control body scrolling */
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px; /* Typical mobile width */
+            height: 100vh; /* Full viewport height */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden; /* Hide scrollbars within the container */
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-left: 20px; /* Space between icons */
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        .user-initials-header { /* Specific for header W9 */
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .app-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto; /* Enable scrolling for content */
+            padding-bottom: 80px; /* Space for the fixed footer */
+            scrollbar-width: none; /* For Firefox */
+            -ms-overflow-style: none; /* For IE and Edge */
+            position: relative; /* For background circles positioning */
+            z-index: 2; /* Ensure content is above background circles */
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+        }
+
+        .profile-header-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px; /* Space from header */
+            position: relative;
+            z-index: 5; /* Ensure profile details are above background circles */
+        }
+
+        .profile-avatar {
+            background-color: var(--profile-initials-bg);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 32px;
+            color: white;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+        }
+
+        .info-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-card-header .icon {
+            font-size: 20px;
+            color: var(--text-color-lighter);
+            margin-right: 15px;
+        }
+
+        .info-card-header h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin: 0;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0; /* No margin for the last item */
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: var(--text-color-lighter);
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: var(--text-color-light);
+            font-weight: 500;
+        }
+
+        /* Background Circles - as seen in the image */
+        .bg-circle {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.05); /* Semi-transparent white */
+            border-radius: 50%;
+            z-index: 1; /* Behind content but above main background */
+            pointer-events: none; /* Do not block clicks */
+        }
+
+        .bg-circle-large-top {
+            width: 250px;
+            height: 250px;
+            top: 60px; /* Adjusted to fit the image */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.1;
+        }
+
+        .bg-circle-medium-bottom-left {
+            width: 150px;
+            height: 150px;
+            bottom: 150px; /* Adjusted */
+            left: -50px; /* Adjusted */
+            opacity: 0.08;
+        }
+
+        .bg-circle-small-top-right {
+            width: 80px;
+            height: 80px;
+            top: 20px; /* Adjusted */
+            right: -20px; /* Adjusted */
+            opacity: 0.1;
+        }
+
+
+ .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed;
+            /* <--- CHANGE THIS FROM 'absolute' TO 'fixed' */
+            bottom: 0;
+            width: 100%;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+        
+    
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="bg-circle bg-circle-large-top"></div>
+        <div class="bg-circle bg-circle-medium-bottom-left"></div>
+        <div class="bg-circle bg-circle-small-top-right"></div>
+
+        <header class="app-header">
+             <div class="logo">WA<span style="color: var(--watcho-red);">T</span>SE<span style="color: var(--watcho-red);">E</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" onclick="window.location.href='search.html'"></i>
+                <div class="user-initials-header">W9</div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <section class="profile-header-section">
+                <div class="profile-avatar" id="profileAvatarInitials">W9</div>
+                <span class="profile-name" id="profileNameDisplay">Watcho 9thcut</span>
+                <span class="profile-email" id="profileEmailDisplay">vsadith051@gmail.com</span>
+            </section>
+
+            <section class="info-card personal-info-card">
+                <div class="info-card-header">
+                    <i class="fas fa-user icon"></i>
+                    <h2>Personal Information</h2>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">First Name</span>
+                    <span class="info-value" id="firstNameValue">Watcho</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Name</span>
+                    <span class="info-value" id="lastNameValue">9thcut</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="emailValue">vsadith051@gmail.com</span>
+                </div>
+            </section>
+
+            <section class="info-card account-details-card">
+                <div class="info-card-header">
+                    <i class="fas fa-shield-alt icon"></i>
+                    <h2>Account Details</h2>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">User ID</span>
+                    <span class="info-value" id="userIDValue">44570127</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Member Since</span>
+                    <span class="info-value" id="memberSinceValue">03/07/2025</span>
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-nav-bar">
+            <div class="nav-item" onclick="window.location.href='index.html'">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='search.html'">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='favorites.html'">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </div>
+            <div class="nav-item" onclick="window.location.href='favorites.html'">
+                <i class="fas fa-book icon"></i>
+                <span>Library</span>
+            </div>
+            <div class="nav-item active" onclick="window.location.href='profile.html'">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Function to get initials from name
+        function getInitials(firstName, lastName) {
+            let initials = '';
+            if (firstName) initials += firstName.charAt(0);
+            if (lastName) initials += lastName.charAt(0);
+            return initials.toUpperCase();
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const profileAvatarInitials = document.getElementById('profileAvatarInitials');
+            const profileNameDisplay = document.getElementById('profileNameDisplay');
+            const profileEmailDisplay = document.getElementById('profileEmailDisplay');
+            const firstNameValue = document.getElementById('firstNameValue');
+            const lastNameValue = document.getElementById('lastNameValue');
+            const emailValue = document.getElementById('emailValue');
+            const userIDValue = document.getElementById('userIDValue');
+            const memberSinceValue = document.getElementById('memberSinceValue');
+
+            try {
+                const response = await fetch('/api/user_data');
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const user = data.user;
+                    profileNameDisplay.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                    profileEmailDisplay.textContent = user.email || '';
+                    profileAvatarInitials.textContent = getInitials(user.first_name, user.last_name);
+
+                    firstNameValue.textContent = user.first_name || '';
+                    lastNameValue.textContent = user.last_name || '';
+                    emailValue.textContent = user.email || '';
+                    userIDValue.textContent = user.user_id || '';
+                    memberSinceValue.textContent = user.member_since || '';
+
+                } else {
+                    console.error('Failed to fetch user data:', data.message);
+                    // Redirect to login if not authenticated or user data not found
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                // Redirect to login page on network error or server issue
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
