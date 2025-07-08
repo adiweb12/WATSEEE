@@ -2,3 +2,4 @@ Flask>=2.0.0
 Flask-SQLAlchemy>=3.0.0
 psycopg2-binary>=2.9.0
 Werkzeug>=2.0.0 # Werkzeug is a dependency of Flask, explicitly listed for clarity, especially if using secure_filename
+gunicorn==20.1.0
