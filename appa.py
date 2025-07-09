@@ -11,7 +11,7 @@ app.secret_key = os.urandom(24) # Keep your secret key secure!
 
 # --- Database Configuration ---
 # DIRECTLY ADDING YOUR POSTGRESQL URL FOR TESTING
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://db_9thcut_vora_user:8EbfvH6E70yYue0KRSqb3KebXKCq1e61@dpg-d182v1qdbo4c73d819t0-a/db_9thcut_vora'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://watsee_user:ShCCMWkSoOyLyL2VdI5FLYTB8efgwFd7@dpg-d1n3gf0dl3ps73fsj04g-a/watsee'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Suppress a warning
 
 db = SQLAlchemy(app)
