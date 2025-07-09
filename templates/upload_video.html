@@ -320,12 +320,34 @@
             border: 1px solid #dc3545;
         }
 
+        /* Progress Bar Styles */
         .loading-indicator {
             display: none;
             text-align: center;
             margin-top: 10px;
             font-size: 14px;
             color: var(--accent-color);
+        }
+
+        #progressBarContainer {
+            width: 100%;
+            background-color: #333;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+            overflow: hidden; /* Ensures child div stays within bounds */
+        }
+
+        #progressBar {
+            width: 0%;
+            height: 20px;
+            background-color: var(--accent-color);
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 12px;
+            transition: width 0.1s ease-out; /* Smooth progress animation */
         }
 
         /* Nav Bar Fixed Position */
@@ -372,12 +394,11 @@
             <div class="header-icons">
                 <i class="fas fa-search icon" id="headerSearchIcon"></i>
                 <div class="profile-dropdown-container" id="profileDropdownToggle">
-                    <div class="user-initials">W9</div>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    <div class="user-initials">UN</div> <i class="fas fa-chevron-down dropdown-arrow"></i>
 
                     <div class="profile-dropdown-menu" id="profileDropdownMenu">
                         <div class="dropdown-profile-info">
-                            <div class="user-initials">W9</div>
+                            <div class="user-initials">UN</div>
                             <div class="profile-text">
                                 <span class="name" id="profileNameDropdown"></span>
                                 <span class="email" id="profileEmailDropdown"></span>
@@ -395,14 +416,16 @@
                             <i class="fas fa-question-circle icon"></i>
                             <span>Help & Support</span>
                         </a>
+                        {% if session.get('is_admin') %} {# <--- Conditional rendering #}
                         <a href="/developer_dashboard.html" class="dropdown-menu-item">
                             <i class="fas fa-code icon"></i>
                             <span>Developer Dashboard</span>
                         </a>
-                         <a href="/upload_video.html" class="dropdown-menu-item active">
+                        <a href="/upload_video.html" class="dropdown-menu-item"> {# Removed 'active' class here #}
                             <i class="fas fa-upload icon"></i>
                             <span>Upload Video</span>
                         </a>
+                        {% endif %}
                         <a href="/api/logout" class="dropdown-menu-item sign-out">
                             <i class="fas fa-sign-out-alt icon"></i>
                             <span>Sign Out</span>
@@ -432,6 +455,9 @@
                     <input type="text" id="videoDuration" placeholder="e.g., 01:23:45" value="00:00:00">
 
                     <button type="submit">Upload & Add Video</button>
+                    <div id="progressBarContainer">
+                        <div id="progressBar">0%</div>
+                    </div>
                     <div id="loadingIndicator" class="loading-indicator">Uploading files... Please wait.</div>
                     <div id="uploadMessage" class="message" style="display: none;"></div>
                 </form>
@@ -473,6 +499,23 @@
             const uploadVideoForm = document.getElementById('uploadVideoForm');
             const uploadMessage = document.getElementById('uploadMessage');
             const loadingIndicator = document.getElementById('loadingIndicator');
+            const progressBarContainer = document.getElementById('progressBarContainer');
+            const progressBar = document.getElementById('progressBar');
+
+            // Set active class for navigation item based on current page
+            const navItems = document.querySelectorAll('.app-nav-bar .nav-item');
+            const currentPath = window.location.pathname;
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                // Special handling for upload_video.html since its nav item is usually 'profile.html'
+                if (currentPath.includes('upload_video.html') && item.getAttribute('href') === 'profile.html') {
+                    item.classList.add('active');
+                } else if (item.getAttribute('href') === currentPath ||
+                           (currentPath === '/' && item.getAttribute('href') === 'index.html')) {
+                    item.classList.add('active');
+                }
+            });
 
             // --- Search Icon Redirection ---
             if (headerSearchIcon) {
@@ -490,14 +533,24 @@
                         const user = data.user;
                         profileNameSpan.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                         profileEmailSpan.textContent = user.email || '';
+                        // Set initials dynamically for the header and dropdown
+                        const initials = (user.first_name ? user.first_name[0] : '') + (user.last_name ? user.last_name[0] : '');
+                        document.querySelector('.app-header .user-initials').textContent = initials || 'UN';
+                        document.querySelector('.dropdown-profile-info .user-initials').textContent = initials || 'UN';
+
                     } else {
                         profileNameSpan.textContent = 'Guest User';
                         profileEmailSpan.textContent = 'Please log in';
+                        // If not logged in, hide developer links (redundant if Jinja2 is used, but good fallback)
+                        document.querySelectorAll('.dropdown-menu-item[href="/developer_dashboard.html"], .dropdown-menu-item[href="/upload_video.html"]')
+                                .forEach(link => link.style.display = 'none');
                     }
                 } catch (error) {
                     console.error('Error fetching profile dropdown data:', error);
                     profileNameSpan.textContent = 'Guest User';
                     profileEmailSpan.textContent = 'Please log in';
+                    document.querySelectorAll('.dropdown-menu-item[href="/developer_dashboard.html"], .dropdown-menu-item[href="/upload_video.html"]')
+                            .forEach(link => link.style.display = 'none');
                 }
             }
             fetchProfileDropdownData();
@@ -530,11 +583,71 @@
                 }, 5000); // Hide after 5 seconds
             }
 
+            async function uploadFileWithProgress(url, file, fileType) {
+                return new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append(fileType, file); // 'video_file' or 'thumbnail_file'
+
+                    const xhr = new XMLHttpRequest();
+
+                    xhr.open('POST', url, true);
+
+                    xhr.upload.addEventListener('progress', function(e) {
+                        if (e.lengthComputable) {
+                            const percent = (e.loaded / e.total) * 100;
+                            progressBar.style.width = percent.toFixed(0) + '%';
+                            progressBar.textContent = percent.toFixed(0) + '%';
+                            loadingIndicator.textContent = `Uploading ${fileType.replace('_file', '')}: ${percent.toFixed(0)}%`;
+                        }
+                    });
+
+                    xhr.onloadstart = function() {
+                        progressBarContainer.style.display = 'block';
+                        progressBar.style.width = '0%';
+                        progressBar.textContent = '0%';
+                        loadingIndicator.style.display = 'block';
+                        loadingIndicator.textContent = `Starting ${fileType.replace('_file', '')} upload...`;
+                    };
+
+                    xhr.onloadend = function() {
+                        // Progress bar will show 100% until next step takes over
+                    };
+
+                    xhr.onerror = function() {
+                        reject(new Error('Network error during upload.'));
+                    };
+
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState === XMLHttpRequest.DONE) {
+                            if (xhr.status === 200 || xhr.status === 201) {
+                                try {
+                                    const response = JSON.parse(xhr.responseText);
+                                    resolve(response);
+                                } catch (e) {
+                                    reject(new Error('Failed to parse response from server.'));
+                                }
+                            } else {
+                                try {
+                                    const errorResponse = JSON.parse(xhr.responseText);
+                                    reject(new Error(errorResponse.message || `Server error: ${xhr.status}`));
+                                } catch (e) {
+                                    reject(new Error(`Upload failed with status: ${xhr.status} (Not JSON response)`));
+                                }
+                            }
+                        }
+                    };
+
+                    xhr.send(formData);
+                });
+            }
+
+
             uploadVideoForm.addEventListener('submit', async function(event) {
                 event.preventDefault();
 
                 uploadMessage.style.display = 'none'; // Hide previous messages
-                loadingIndicator.style.display = 'block'; // Show loading "Uploading files..."
+                progressBarContainer.style.display = 'none'; // Ensure progress bar is hidden initially
+                loadingIndicator.style.display = 'none'; // Ensure loading indicator is hidden initially
 
                 const videoFile = document.getElementById('videoFile').files[0];
                 const thumbnailFile = document.getElementById('thumbnailFile').files[0];
@@ -544,7 +657,6 @@
 
                 if (!videoFile || !thumbnailFile) {
                     displayMessage(uploadMessage, 'Please select both a video file and a thumbnail file.', false);
-                    loadingIndicator.style.display = 'none';
                     return;
                 }
 
@@ -553,54 +665,45 @@
 
                 try {
                     // Step 1: Upload the video file
-                    loadingIndicator.textContent = 'Uploading video file...';
-                    const videoFormData = new FormData();
-                    videoFormData.append('video_file', videoFile);
-                    const videoUploadResponse = await fetch('/api/upload_video_file', {
-                        method: 'POST',
-                        body: videoFormData
-                    });
-                    const videoUploadData = await videoUploadResponse.json();
+                    const videoUploadData = await uploadFileWithProgress('/api/upload_video_file', videoFile, 'video_file');
 
                     if (!videoUploadData.success) {
                         displayMessage(uploadMessage, `Video file upload failed: ${videoUploadData.message}`, false);
-                        loadingIndicator.style.display = 'none';
-                        if (videoUploadResponse.status === 403) { setTimeout(() => { window.location.href = '/login.html'; }, 2000); }
+                        // If 403 (Forbidden), redirect to login
+                        if (videoUploadData.message.includes('Access denied')) { 
+                            setTimeout(() => { window.location.href = '/login.html'; }, 2000); 
+                        }
                         return;
                     }
                     videoUrl = videoUploadData.video_url;
                     displayMessage(uploadMessage, 'Video uploaded, now uploading thumbnail...', true);
 
+
                     // Step 2: Upload the thumbnail file
-                    loadingIndicator.textContent = 'Uploading thumbnail file...';
-                    const thumbnailFormData = new FormData();
-                    thumbnailFormData.append('thumbnail_file', thumbnailFile);
-                    const thumbnailUploadResponse = await fetch('/api/upload_thumbnail_file', {
-                        method: 'POST',
-                        body: thumbnailFormData
-                    });
-                    const thumbnailUploadData = await thumbnailUploadResponse.json();
+                    const thumbnailUploadData = await uploadFileWithProgress('/api/upload_thumbnail_file', thumbnailFile, 'thumbnail_file');
 
                     if (!thumbnailUploadData.success) {
                         displayMessage(uploadMessage, `Thumbnail file upload failed: ${thumbnailUploadData.message}`, false);
-                        loadingIndicator.style.display = 'none';
-                        // Optionally, try to delete the uploaded video if thumbnail upload failed
-                        // Not implemented here for simplicity, but good for production
+                        // If 403 (Forbidden), redirect to login
+                        if (thumbnailUploadData.message.includes('Access denied')) { 
+                            setTimeout(() => { window.location.href = '/login.html'; }, 2000); 
+                        }
                         return;
                     }
                     thumbnailUrl = thumbnailUploadData.thumbnail_url;
                     displayMessage(uploadMessage, 'Thumbnail uploaded, now adding video details...', true);
 
                     // Step 3: Add video details to the database using the received URLs
+                    loadingIndicator.style.display = 'block'; // Show general loading for this step
                     loadingIndicator.textContent = 'Adding video details to database...';
                     const videoDetails = {
                         title: title,
                         description: description,
                         url: videoUrl, // Use the URL from the video file upload
                         thumbnail: thumbnailUrl, // Use the URL from the thumbnail file upload
-                        views: "0 Views",
-                        upload_date: "Just now",
-                        channel: "User Uploads",
+                        views: "0 Views", // Initial views
+                        upload_date: "Just now", // Set dynamically
+                        channel: "User Uploads", // Default channel
                         duration: duration,
                         is_featured: false
                     };
@@ -617,15 +720,25 @@
                     if (addVideoData.success) {
                         displayMessage(uploadMessage, `Video added successfully! (ID: ${addVideoData.video_id})`, true);
                         uploadVideoForm.reset(); // Clear form
+                        // Reset progress bar display after success
+                        progressBar.style.width = '0%';
+                        progressBar.textContent = '0%';
                     } else {
                         displayMessage(uploadMessage, `Failed to add video details: ${addVideoData.message}`, false);
-                        if (addVideoResponse.status === 403) { setTimeout(() => { window.location.href = '/login.html'; }, 2000); }
+                        if (addVideoData.message.includes('Access denied')) { 
+                            setTimeout(() => { window.location.href = '/login.html'; }, 2000); 
+                        }
                     }
                 } catch (error) {
                     console.error('Error during video upload or addition:', error);
-                    displayMessage(uploadMessage, 'An unexpected error occurred during the process.', false);
+                    displayMessage(uploadMessage, 'An unexpected error occurred during the process: ' + error.message, false);
+                    // Redirect if authentication error from backend for any step
+                    if (error.message.includes('Access denied') || error.message.includes('403')) { 
+                        setTimeout(() => { window.location.href = '/login.html'; }, 2000); 
+                    }
                 } finally {
-                    loadingIndicator.style.display = 'none'; // Always hide loading
+                    progressBarContainer.style.display = 'none'; // Ensure hidden on completion/error
+                    loadingIndicator.style.display = 'none'; // Ensure hidden on completion/error
                 }
             });
         });

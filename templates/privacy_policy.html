@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcho - Privacy Policy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --dark-bg: #1A122E;
+            --header-bg: #1A122E;
+            --text-color-light: #E0E0E0;
+            --text-color-lighter: #AAAAAA;
+            --watcho-red: #D62828;
+            --accent-color: #8A4EF0;
+            --nav-item-active: #F5F5F5;
+            --nav-item-inactive: #A0A0A0;
+            --card-bg: #2C1F4D;
+            --dropdown-bg: #2C1F4D;
+            --dropdown-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 380px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--dark-bg);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+        }
+
+        .logo span {
+            color: var(--watcho-red);
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-icons .icon {
+            font-size: 20px;
+            margin-right: 20px;
+            color: var(--text-color-light);
+            cursor: pointer;
+        }
+
+        /* Re-using dropdown styles from index.html */
+        .profile-dropdown-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .user-initials {
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 500;
+            font-size: 14px;
+            color: white;
+            text-transform: uppercase;
+            margin-right: 5px;
+            flex-shrink: 0;
+        }
+
+        .dropdown-arrow {
+            font-size: 14px;
+            color: var(--text-color-lighter);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-dropdown-container.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .profile-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: var(--dropdown-bg);
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            width: 250px;
+            padding: 15px 0;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+        }
+
+        .profile-dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-profile-info {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-bottom: var(--dropdown-border);
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+        }
+
+        .dropdown-profile-info .user-initials {
+            width: 50px;
+            height: 50px;
+            font-size: 18px;
+            margin-right: 15px;
+            background-color: var(--watcho-red);
+        }
+
+        .profile-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-text .name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color-light);
+            margin-bottom: 2px;
+        }
+
+        .profile-text .email {
+            font-size: 12px;
+            color: var(--text-color-lighter);
+        }
+
+        .dropdown-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color-light);
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+        }
+
+        .dropdown-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .dropdown-menu-item .icon {
+            font-size: 18px;
+            margin-right: 15px;
+            color: var(--text-color-lighter);
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-menu-item.sign-out {
+            border-top: var(--dropdown-border);
+            margin-top: 10px;
+            color: var(--watcho-red);
+            font-weight: 500;
+        }
+
+        .dropdown-menu-item.sign-out .icon {
+            color: var(--watcho-red);
+        }
+
+        /* Content Specific Styles */
+        .app-content {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 80px; /* Space for fixed nav bar */
+            scrollbar-width: none; /* Hide scrollbar for Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+        }
+
+        .app-content::-webkit-scrollbar {
+            display: none; /* Hide scrollbar for Chrome, Safari, Opera */
+        }
+
+        .policy-section {
+            margin-bottom: 30px;
+            padding: 0 5px; /* Slight padding for inner content */
+        }
+
+        .policy-section h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-color-light);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .policy-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-color); /* Using accent color for headings */
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        .policy-section p, .policy-section ul {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-color-lighter);
+            margin-bottom: 10px;
+        }
+
+        .policy-section ul {
+            list-style-type: disc;
+            margin-left: 20px;
+            padding-left: 0;
+        }
+
+        .policy-section ul li {
+            margin-bottom: 5px;
+        }
+
+        .policy-section strong {
+            color: var(--text-color-light);
+        }
+
+        /* Navigation Bar - Same as index.html */
+        .app-nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--header-bg);
+            padding: 10px 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 380px;
+            border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--nav-item-inactive);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .nav-item .icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .nav-item.active {
+            color: var(--nav-item-active);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">WATCH<span style="color: var(--watcho-red);">O</span></div>
+            <div class="header-icons">
+                <i class="fas fa-search icon" id="headerSearchIcon"></i>
+                <div class="profile-dropdown-container" id="profileDropdownToggle">
+                    <div class="user-initials">UN</div> <i class="fas fa-chevron-down dropdown-arrow"></i>
+
+                    <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                        <div class="dropdown-profile-info">
+                            <div class="user-initials">UN</div>
+                            <div class="profile-text">
+                                <span class="name" id="profileNameDropdown">Loading...</span>
+                                <span class="email" id="profileEmailDropdown"></span>
+                            </div>
+                        </div>
+                        <a href="/profile.html" class="dropdown-menu-item">
+                            <i class="fas fa-user icon"></i>
+                            <span>My Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-cog icon"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-menu-item">
+                            <i class="fas fa-question-circle icon"></i>
+                            <span>Help & Support</span>
+                        </a>
+                        {% if session.get('is_admin') %}
+                        <a href="/video_management_dashboard.html" class="dropdown-menu-item">
+                            <i class="fas fa-video icon"></i>
+                            <span>Video Management</span>
+                        </a>
+                        {% endif %}
+                        <a href="/api/logout" class="dropdown-menu-item sign-out">
+                            <i class="fas fa-sign-out-alt icon"></i>
+                            <span>Sign Out</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="app-content">
+            <div class="policy-section">
+                <h1>Privacy Policy for Watcho</h1>
+                <p>Last Updated: July 9, 2025</p>
+
+                <p>Welcome to Watcho! This Privacy Policy describes how Watcho ("we," "us," or "our") collects, uses, and shares your information when you use our mobile application and website (collectively, the "Service").</p>
+
+                <h2>1. Information We Collect</h2>
+                <p>We collect various types of information in connection with the Service, including:</p>
+                <ul>
+                    <li><strong>Personal Information:</strong> Information you provide directly, such as your name, email address, username, and password when you register for an account.</li>
+                    <li><strong>Usage Data:</strong> Information about your activity on the Service, such as videos watched, search queries, pages visited, and time spent.</li>
+                    <li><strong>Device Information:</strong> Information about the device you use to access the Service, including IP address, device type, operating system, and unique device identifiers.</li>
+                    <li><strong>Cookies and Tracking Technologies:</strong> We use cookies and similar technologies to track activity on our Service and hold certain information.</li>
+                </ul>
+
+                <h2>2. How We Use Your Information</h2>
+                <p>We use the information we collect for various purposes, including to:</p>
+                <ul>
+                    <li>Provide, operate, and maintain our Service.</li>
+                    <li>Improve, personalize, and expand our Service.</li>
+                    <li>Understand and analyze how you use our Service.</li>
+                    <li>Develop new products, services, features, and functionality.</li>
+                    <li>Communicate with you, including for customer service, updates, and marketing.</li>
+                    <li>Find and prevent fraud.</li>
+                    <li>Process your transactions and manage your account.</li>
+                </ul>
+
+                <h2>3. Sharing Your Information</h2>
+                <p>We may share your information with third parties in the following situations:</p>
+                <ul>
+                    <li><strong>Service Providers:</strong> With third-party vendors, consultants, and other service providers who perform services on our behalf (e.g., hosting, analytics, payment processing).</li>
+                    <li><strong>Business Transfers:</strong> In connection with, or during negotiations of, any merger, sale of company assets, financing, or acquisition of all or a portion of our business by another company.</li>
+                    <li><strong>Legal Requirements:</strong> If required to do so by law or in response to valid requests by public authorities (e.g., a court or a government agency).</li>
+                    <li><strong>With Your Consent:</strong> We may share your information for any other purpose with your consent.</li>
+                </ul>
+
+                <h2>4. Ads Policy</h2>
+                <p>Watcho may display advertisements on its Service to support its operations and provide free content. Our Ads Policy outlines how we manage and display these advertisements:</p>
+                <ul>
+                    <li><strong>Non-Personalized Ads:</strong> We prioritize displaying non-personalized ads wherever possible. These ads are not based on your past online activity but may be based on contextual information such as the content you are viewing or your general location.</li>
+                    <li><strong>Third-Party Ad Networks:</strong> We may partner with third-party ad networks to serve advertisements. These networks may use cookies and similar technologies to collect information about your interactions with our Service and other websites to provide more relevant ads. We strive to work with ad partners who comply with industry standards for privacy.</li>
+                    <li><strong>Opting Out:</strong> You may be able to opt-out of personalized advertising by visiting the <a href="http://www.aboutads.info/choices/" target="_blank" style="color: var(--accent-color);">Digital Advertising Alliance Opt-Out page</a> or the <a href="http://www.youronlinechoices.com/" target="_blank" style="color: var(--accent-color);">Network Advertising Initiative Opt-Out page</a>. On mobile devices, you may be able to adjust your device settings to limit ad tracking.</li>
+                    <li><strong>No Direct User Data Sharing with Advertisers:</strong> We do not directly share your personally identifiable information (like your name or email) with advertisers unless you explicitly consent to such sharing.</li>
+                </ul>
+
+                <h2>5. Data Security</h2>
+                <p>We implement reasonable security measures designed to protect your information from unauthorized access, alteration, disclosure, or destruction. However, no internet transmission is entirely secure, and we cannot guarantee the absolute security of your information.</p>
+
+                <h2>6. Your Choices and Rights</h2>
+                <p>You have certain rights regarding your personal information, including:</p>
+                <ul>
+                    <li><strong>Access and Update:</strong> You can access and update certain personal information through your account settings.</li>
+                    <li><strong>Deletion:</strong> You may request the deletion of your account and personal data, subject to certain legal obligations.</li>
+                    <li><strong>Opt-Out of Marketing:</strong> You can opt-out of receiving promotional communications from us by following the unsubscribe instructions in those communications.</li>
+                </ul>
+
+                <h2>7. Children's Privacy</h2>
+                <p>Our Service is not intended for use by children under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we become aware that we have collected personal information from a child under 13 without verification of parental consent, we will take steps to remove that information from our servers.</p>
+
+                <h2>8. Changes to This Privacy Policy</h2>
+                <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.</p>
+
+                <h2>9. Contact Us</h2>
+                <p>If you have any questions about this Privacy Policy, please contact us:</p>
+                <ul>
+                    <li>By email: support@watcho.com</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer class="app-nav-bar">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home icon"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search icon"></i>
+                <span>Search</span>
+            </a>
+            <a href="favorites.html" class="nav-item">
+                <i class="fas fa-heart icon"></i>
+                <span>Favorites</span>
+            </a>
+            <a href="favorites.html" class="nav-item">
+                <i class="fas fa-book icon"></i>
+                <span>Library</span>
+            </a>
+            <a href="profile.html" class="nav-item">
+                <i class="fas fa-user-circle icon"></i>
+                <span>Profile</span>
+            </a>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileDropdownToggle = document.getElementById('profileDropdownToggle');
+            const profileDropdownMenu = document.getElementById('profileDropdownMenu');
+            const profileNameDropdown = document.getElementById('profileNameDropdown');
+            const profileEmailDropdown = document.getElementById('profileEmailDropdown');
+            const headerSearchIcon = document.getElementById('headerSearchIcon');
+
+            // --- Search Icon Redirection ---
+            if (headerSearchIcon) {
+                headerSearchIcon.addEventListener('click', function() {
+                    window.location.href = 'search.html';
+                });
+            }
+
+            // --- Profile Dropdown Logic ---
+            async function fetchProfileDropdownData() {
+                try {
+                    const response = await fetch('/api/user_data');
+                    const data = await response.json();
+                    if (response.ok && data.success) {
+                        const user = data.user;
+                        profileNameDropdown.textContent = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                        profileEmailDropdown.textContent = user.email || '';
+                        // Set initials dynamically for the header and dropdown
+                        const initials = (user.first_name ? user.first_name[0] : '') + (user.last_name ? user.last_name[0] : '');
+                        document.querySelector('.app-header .user-initials').textContent = initials || 'UN';
+                        document.querySelector('.dropdown-profile-info .user-initials').textContent = initials || 'UN';
+
+                    } else {
+                        profileNameDropdown.textContent = 'Guest User';
+                        profileEmailDropdown.textContent = 'Please log in';
+                    }
+                } catch (error) {
+                    console.error('Error fetching profile dropdown data:', error);
+                    profileNameDropdown.textContent = 'Guest User';
+                    profileEmailDropdown.textContent = 'Please log in';
+                }
+            }
+            fetchProfileDropdownData();
+
+            function toggleDropdown() {
+                profileDropdownMenu.classList.toggle('show');
+                profileDropdownToggle.classList.toggle('active');
+            }
+
+            profileDropdownToggle.addEventListener('click', function(event) {
+                event.stopPropagation(); // Prevent document click from closing immediately
+                toggleDropdown();
+            });
+
+            document.addEventListener('click', function(event) {
+                // Close dropdown if click is outside the dropdown and the toggle button
+                if (!profileDropdownMenu.contains(event.target) && !profileDropdownToggle.contains(event.target)) {
+                    if (profileDropdownMenu.classList.contains('show')) {
+                        toggleDropdown();
+                    }
+                }
+            });
+
+            // Set active class for navigation item based on current page
+            const navItems = document.querySelectorAll('.app-nav-bar .nav-item');
+            const currentPath = window.location.pathname;
+
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === currentPath ||
+                    (currentPath === '/' && item.getAttribute('href') === 'index.html')) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
