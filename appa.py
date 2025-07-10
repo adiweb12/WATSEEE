@@ -248,7 +248,7 @@ def upload_video_page():
 def serve_static_pages(filename):
     # Only serve files that do NOT have their own specific routes/decorators
     if filename in ['search.html', 'favorites.html', 'profile.html', 'signup.html', 'index.html',
-                 'continue.html', 'list.html', 'continue_watching.html', 'video_player.html']:
+                 'continue.html', 'list.html', 'google030589fd1e5406a8.html','continue_watching.html', 'video_player.html']:
         return render_template(filename)
     return "Page not found", 404
 
